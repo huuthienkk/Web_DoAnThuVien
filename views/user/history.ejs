@@ -1,0 +1,88 @@
+<%- include('../components/header') %>
+
+<section>
+    <h2>Lịch sử mượn trả</h2>
+    <p style="color: #666; margin-bottom: 2rem;">Hành trình đọc sách của bạn tại Digital Conservatory.</p>
+</section>
+
+<div style="display: flex; gap: 10px; margin-bottom: 2rem;">
+    <div style="flex: 1; position: relative;">
+        <input type="text" placeholder="Tìm theo tên sách, tác giả hoặc ISBN..." style="width: 100%; padding: 12px 15px 12px 40px; border-radius: 8px; border: 1px solid #EEE; background: #F9F9F9;">
+        <svg style="position: absolute; left: 15px; top: 14px; width: 16px; height: 16px; color: #999;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    </div>
+    <button style="display: flex; align-items: center; gap: 8px; background: white; border: 1px solid #EEE; padding: 0 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;">
+        Bộ lọc <svg style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" x2="7" y1="14" y2="14"></line><line x1="9" x2="15" y1="8" y2="8"></line><line x1="17" x2="23" y1="16" y2="16"></line></svg>
+    </button>
+</div>
+
+<section>
+    <% history.forEach(item => { %>
+        <div class="borrowing-item">
+            <div class="item-left">
+                <img src="<%= item.cover %>" class="item-thumb" alt="<%= item.title %>">
+                <div class="item-details">
+                    <div style="font-family: monospace; font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; opacity: 0.8;">
+                        <i class="fas fa-ticket-alt"></i> PHIẾU: <%= item.slipCode || 'N/A' %>
+                    </div>
+                    <h4><%= item.title %></h4>
+                    <p>Mã sách: <%= (item.bookId || '').substring(0, 8).toUpperCase() %></p>
+                </div>
+            </div>
+            <div class="item-meta">
+                <div class="meta-box">
+                    <span>Ngày mượn</span>
+                    <strong><%= item.borrowDate %></strong>
+                </div>
+                <div class="meta-box">
+                    <span>Hạn trả/Ngày trả</span>
+                    <strong><%= item.returnDate %></strong>
+                </div>
+                <div class="status-badge status-<%= (item.status || 'Active').toLowerCase() %>">
+                    <%= item.status === 'Active' ? 'CHỜ NHẬN' : (item.status === 'Borrowed' ? 'ĐÃ NHẬN' : (item.status === 'Returned' ? 'ĐÃ TRẢ' : (item.status === 'Cancelled' ? 'ĐÃ HỦY' : 'QUÁ HẠN'))) %>
+                </div>
+            </div>
+        </div>
+    <% }) %>
+    
+    <div style="text-align: center; margin: 2rem 0;">
+        <button class="btn-action">Tải thêm lịch sử ▿</button>
+    </div>
+</section>
+
+<section>
+    <h3 style="margin-bottom: 1.5rem;">Khám phá thói quen đọc</h3>
+    <div class="stats-grid">
+        <div class="stat-card white">
+            <p style="color: #666; font-size: 0.8rem; text-transform: uppercase;">Thể loại ưa thích</p>
+            <p style="font-size: 0.8rem; color: #999; margin: 5px 0 15px;">Dựa trên lịch sử mượn trả năm 2023</p>
+            <h3 style="font-size: 1.5rem; color: var(--primary);">Khoa học</h3>
+            <div style="height: 4px; background: #EEE; border-radius: 2px; margin-top: 10px;">
+                <div style="width: 80%; height: 100%; background: var(--primary); border-radius: 2px;"></div>
+            </div>
+        </div>
+        <div class="stat-card white">
+            <p style="color: #666; font-size: 0.8rem; text-transform: uppercase;">Chuỗi ngày đọc</p>
+            <p style="font-size: 0.8rem; color: #999; margin: 5px 0 15px;">Duy trì thói quen mỗi ngày</p>
+            <h1 style="font-size: 2.2rem; color: var(--primary);">12 <span style="font-size: 0.9rem; font-weight: normal; color: #666;">Ngày liên tiếp</span></h1>
+        </div>
+        <div class="stat-card primary" style="display: flex; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
+            <p style="font-style: italic; font-size: 1rem; line-height: 1.6; opacity: 0.9;">"Thư viện không chỉ là nơi chứa sách, nó là một kho lưu trữ những giấc mơ."</p>
+        </div>
+    </div>
+<style>
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.status-active { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+.status-borrowed { background: #E3F2FD; color: #1565C0; border: 1px solid #BBDEFB; }
+.status-returned { background: #F5F5F5; color: #616161; border: 1px solid #E0E0E0; }
+.status-cancelled { background: #FAFAFA; color: #BBB; border: 1px solid #EEE; text-decoration: line-through; }
+.status-overdue { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+</style>
+
+<%- include('../components/footer') %>

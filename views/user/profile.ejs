@@ -1,0 +1,123 @@
+<%- include('../components/header') %>
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header-bg"></div>
+        <div class="profile-body">
+            <!-- View Mode -->
+            <div id="viewMode">
+                <div class="profile-avatar-large">
+                    <img src="<%= user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150' %>" alt="Avatar">
+                </div>
+                
+                <div class="profile-info-main">
+                    <h2><%= user.name %></h2>
+                    <p class="user-id">Mã sinh viên: <%= user.id %></p>
+                    <span class="badge-role"><%= user.role === 'admin' ? 'Thủ thư' : 'Sinh viên' %></span>
+                </div>
+
+                <div class="profile-stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value"><%= stats.readCount %></div>
+                        <div class="stat-label">Sách đã đọc</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value"><%= stats.borrowingCount %></div>
+                        <div class="stat-label">Đang mượn</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Vi phạm</div>
+                    </div>
+                </div>
+
+                <div class="profile-details-list">
+                    <div class="detail-row">
+                        <i class="fas fa-envelope"></i>
+                        <div class="detail-content">
+                            <label>Email</label>
+                            <p><%= user.email %></p>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <i class="fas fa-university"></i>
+                        <div class="detail-content">
+                            <label>Khoa / Ngành</label>
+                            <p><%= user.dept || 'Chưa cập nhật' %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="btn-outline" onclick="toggleEdit(true)">Chỉnh sửa hồ sơ</button>
+                    <a href="/logout" class="btn-logout-text">Đăng xuất</a>
+                </div>
+            </div>
+
+            <!-- Edit Mode -->
+            <div id="editMode" style="display: none; padding-top: 2rem;">
+                <h3 style="margin-bottom: 2rem; color: var(--primary);">Cập nhật thông tin</h3>
+                <form action="/profile" method="POST" class="edit-form">
+                    <div class="form-group-profile">
+                        <label>Tên hiển thị</label>
+                        <input type="text" name="name" value="<%= user.name %>" required>
+                    </div>
+                    <div class="form-group-profile">
+                        <label>Link Avatar (URL)</label>
+                        <input type="text" name="avatar" value="<%= user.avatar %>" placeholder="https://...">
+                    </div>
+                    <div class="form-group-profile">
+                        <label>Khoa / Ngành</label>
+                        <input type="text" name="dept" value="<%= user.dept || '' %>">
+                    </div>
+
+                    <div class="edit-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                        <button type="button" class="btn-cancel" onclick="toggleEdit(false)">Hủy bỏ</button>
+                        <button type="submit" class="btn-save">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleEdit(show) {
+        document.getElementById('viewMode').style.display = show ? 'none' : 'block';
+        document.getElementById('editMode').style.display = show ? 'block' : 'none';
+    }
+</script>
+
+<style>
+.profile-container { max-width: 600px; margin: 4rem auto; }
+.profile-card { background: white; border-radius: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #EEE; }
+.profile-header-bg { height: 100px; background: linear-gradient(135deg, var(--primary), #80AF81); }
+.profile-body { padding: 0 2rem 3rem; position: relative; }
+.profile-avatar-large { width: 120px; height: 120px; margin: -60px auto 20px; border-radius: 50%; padding: 6px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+.profile-avatar-large img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.profile-info-main h2 { font-size: 1.8rem; margin-bottom: 5px; color: var(--text-dark); }
+.user-id { color: #999; font-size: 0.8rem; margin-bottom: 1rem; font-weight: 500; }
+.badge-role { background: #E8F5E9; color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+.profile-stats-grid { display: flex; justify-content: space-around; background: #F9FBF9; border-radius: 20px; padding: 1.5rem; margin: 2rem 0; }
+.stat-item .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+.stat-item .stat-label { font-size: 0.7rem; color: #999; text-transform: uppercase; margin-top: 4px; }
+.profile-details-list { text-align: left; margin-bottom: 2rem; }
+.detail-row { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #F0F0F0; }
+.detail-row i { color: var(--primary); opacity: 0.5; width: 20px; }
+.detail-content label { display: block; font-size: 0.7rem; color: #999; font-weight: 700; margin-bottom: 2px; }
+.profile-actions { margin-top: 2rem; display: flex; align-items: center; justify-content: center; gap: 2rem; }
+.btn-outline { padding: 12px 30px; border: 2px solid var(--primary); background: transparent; color: var(--primary); border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.btn-outline:hover { background: var(--primary); color: white; }
+.btn-logout-text { color: #E53935; text-decoration: none; font-weight: 700; font-size: 0.95rem; }
+
+/* Edit Form Styles */
+.form-group-profile { text-align: left; margin-bottom: 1.2rem; }
+.form-group-profile label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: #555; }
+.form-group-profile input { width: 100%; padding: 12px; border: 1px solid #DDD; border-radius: 10px; outline: none; transition: 0.3s; }
+.form-group-profile input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,83,25,0.1); }
+.btn-cancel { padding: 12px 25px; border: none; background: #F1F1F1; color: #666; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.btn-save { padding: 12px 30px; border: none; background: var(--primary); color: white; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(26,83,25,0.2); }
+</style>
+
+<%- include('../components/footer') %>

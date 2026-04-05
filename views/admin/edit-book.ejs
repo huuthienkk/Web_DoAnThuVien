@@ -1,0 +1,77 @@
+<%- include('./layout/header') %>
+
+<div class="admin-form-container">
+    <div class="form-header">
+        <a href="/admin/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại</a>
+        <h2>Chỉnh sửa thông tin tài liệu</h2>
+        <p>ID: <%= book.id %></p>
+    </div>
+
+    <form action="/admin/edit-book/<%= book.id %>" method="POST" class="admin-form">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="title">Tiêu đề sách *</label>
+                <input type="text" id="title" name="title" value="<%= book.title %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="author">Tác giả *</label>
+                <input type="text" id="author" name="author" value="<%= book.author %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Thể loại *</label>
+                <select id="category" name="category" required>
+                    <option value="Kiến trúc" <%= book.category === 'Kiến trúc' ? 'selected' : '' %>>Kiến trúc</option>
+                    <option value="Kỹ thuật" <%= book.category === 'Kỹ thuật' ? 'selected' : '' %>>Kỹ thuật</option>
+                    <option value="Kinh tế" <%= book.category === 'Kinh tế' ? 'selected' : '' %>>Kinh tế</option>
+                    <option value="Tâm lý" <%= book.category === 'Tâm lý' ? 'selected' : '' %>>Tâm lý</option>
+                    <option value="Lịch sử" <%= book.category === 'Lịch sử' ? 'selected' : '' %>>Lịch sử</option>
+                    <option value="Nghệ thuật" <%= book.category === 'Nghệ thuật' ? 'selected' : '' %>>Nghệ thuật</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">Số lượng hiện có *</label>
+                <input type="number" id="quantity" name="quantity" value="<%= book.quantity %>" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="totalQuantity">Tổng số lượng trong kho *</label>
+                <input type="number" id="totalQuantity" name="totalQuantity" value="<%= book.totalQuantity || book.quantity %>" min="0" required>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="cover">Link ảnh bìa (URL)</label>
+                <input type="url" id="cover" name="cover" value="<%= book.cover %>">
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="isFeatured" name="isFeatured" <%= book.isFeatured ? 'checked' : '' %>>
+                <label for="isFeatured">Đánh dấu là sách nổi bật (Hiển thị trang chủ)</label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-secondary-outline" onclick="window.location.href='/admin/dashboard'">Hủy bỏ</button>
+            <button type="submit" class="btn-primary-solid">Cập nhật tài liệu</button>
+        </div>
+    </form>
+</div>
+
+<style>
+/* CSS copied from add-book.ejs */
+.admin-form-container { max-width: 900px; margin: 2rem auto; background: white; padding: 2.5rem; border-radius: 20px; box-shadow: var(--shadow); }
+.form-header { margin-bottom: 2.5rem; }
+.back-link { color: var(--primary); text-decoration: none; font-size: 0.85rem; font-weight: 700; display: inline-block; margin-bottom: 1rem; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.full-width { grid-column: span 2; }
+.form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: #444; }
+.form-group input, .form-group select { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #EEE; outline: none; background: #F9F9F9; }
+.checkbox-group { display: flex; align-items: center; gap: 10px; grid-column: span 2; padding: 1rem; background: var(--bg-soft); border-radius: 12px; }
+.form-actions { margin-top: 3rem; display: flex; justify-content: flex-end; gap: 1.5rem; }
+.btn-secondary-outline { padding: 12px 30px; border: 1px solid #DDD; background: transparent; border-radius: 10px; font-weight: 700; cursor: pointer; }
+.btn-primary-solid { padding: 12px 40px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
+</style>
+
+<%- include('./layout/footer') %>

@@ -1,0 +1,83 @@
+<% if(success_msg != '') { %>
+    <div class="alert alert-success">
+        <span class="alert-icon">✓</span>
+        <div class="alert-content"><%= success_msg %></div>
+        <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+    </div>
+<% } %>
+
+<% if(error_msg != '') { %>
+    <div class="alert alert-error">
+        <span class="alert-icon">⚠</span>
+        <div class="alert-content"><%= error_msg %></div>
+        <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+    </div>
+<% } %>
+
+<% if(error != '') { %>
+    <div class="alert alert-error">
+        <span class="alert-icon">⚠</span>
+        <div class="alert-content"><%= error %></div>
+        <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+    </div>
+<% } %>
+
+<style>
+    .alert {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        position: relative;
+        animation: slideIn 0.3s ease-out;
+    }
+    .alert-success {
+        background-color: #ecfdf5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+    .alert-error {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+    .alert-icon {
+        margin-right: 0.75rem;
+        font-weight: bold;
+    }
+    .alert-content {
+        flex: 1;
+        font-weight: 500;
+    }
+    .alert-close {
+        background: none;
+        border: none;
+        color: inherit;
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 0 0.25rem;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+    .alert-close:hover {
+        opacity: 1;
+    }
+    @keyframes slideIn {
+        from { transform: translateY(-10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+</style>
+
+<script>
+    // Auto-hide alert after 5 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.style.transition = 'opacity 0.5s ease-out';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 5000);
+</script>

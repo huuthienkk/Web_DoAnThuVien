@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">Thư viện số</a>
+        
+        <form action="/" method="GET" class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="q" value="<%= locals.searchQuery || '' %>" placeholder="Tìm kiếm tài liệu, tác giả...">
+            <button type="submit" style="display: none;"></button>
+        </form>
+
+        <nav class="header-nav">
+            <a href="/" class="<%= title.includes('Trang chủ') ? 'active' : '' %>">Khám phá</a>
+            <a href="/borrowing" class="<%= title.includes('Sách đang mượn') ? 'active' : '' %>">Tủ sách của tôi</a>
+            <a href="/history" class="<%= title.includes('Lịch sử') ? 'active' : '' %>">Lịch sử</a>
+        </nav>
+
+        <div class="header-right">
+            <% if (locals.user) { %>
+                <div class="user-profile">
+                    <div class="user-text">
+                        <div class="user-name"><%= user.name || 'Người dùng' %></div>
+                        <div class="user-role"><%= user.role === 'admin' ? 'Thủ thư' : 'Sinh viên' %></div>
+                    </div>
+                    <div class="avatar-container" id="profileTrigger">
+                        <img src="<%= user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100' %>" alt="Avatar" class="avatar-img">
+                        <div class="dropdown-menu" id="profileDropdown">
+                            <a href="/profile"><i class="fas fa-user-circle"></i> Hồ sơ cá nhân</a>
+                            <% if (user.role === 'admin') { %>
+                                <a href="/admin/dashboard"><i class="fas fa-shield-alt"></i> Quản trị viên</a>
+                            <% } %>
+                            <div class="dropdown-divider"></div>
+                            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+            <% } else { %>
+                <div class="auth-group">
+                    <a href="/login" class="btn-text">Đăng nhập</a>
+                    <a href="/register" class="btn-primary-small">Tham gia</a>
+                </div>
+            <% } %>
+        </div>
+    </header>
+
+    <main class="container">
+        <%- include('../components/alerts') %>
+
+    <script>
+        // Search Icon Click
+        const searchIcon = document.querySelector('.search-icon');
+        const searchForm = document.querySelector('.search-container');
+        if (searchIcon && searchForm) {
+            searchIcon.style.cursor = 'pointer';
+            searchIcon.addEventListener('click', () => {
+                searchForm.submit();
+            });
+        }
+
+        // Profile Dropdown Toggle
+        const trigger = document.getElementById('profileTrigger');
+        const dropdown = document.getElementById('profileDropdown');
+        
+        if (trigger) {
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('show');
+            });
+
+            document.addEventListener('click', () => {
+                dropdown.classList.remove('show');
+            });
+        }
+    </script>

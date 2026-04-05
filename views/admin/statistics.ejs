@@ -1,0 +1,75 @@
+<%- include('./layout/header') %>
+
+<section class="admin-stats">
+    <div class="stat-tile featured">
+        <p>Tổng sách trong kho</p>
+        <h2><%= stats.totalBooks.toLocaleString() %></h2>
+        <p style="font-size: 0.65rem; opacity: 0.7;">Dữ liệu từ Firestore</p>
+    </div>
+    <div class="stat-tile">
+        <p style="color: #999;">Thành viên hệ thống</p>
+        <h2 style="color: var(--text-dark);"><%= stats.totalUsers.toLocaleString() %></h2>
+        <p style="color: var(--primary); font-weight: 700; font-size: 0.65rem;">Người dùng hoạt động</p>
+    </div>
+    <div class="stat-tile">
+        <p style="color: #999;">Tổng giao dịch</p>
+        <h2 style="color: var(--text-dark);"><%= stats.borrowingCount.toLocaleString() %></h2>
+        <p style="color: #999; font-size: 0.65rem;">Mượn & Trả</p>
+    </div>
+    <div class="stat-tile">
+        <p style="color: #999;">Dung lượng kho</p>
+        <h2 style="color: var(--text-dark);"><%= stats.storageUsed %>%</h2>
+        <p style="color: #999; font-size: 0.65rem;">Mức độ lấp đầy</p>
+    </div>
+</section>
+
+<div style="margin-top: 3rem;">
+    <h3>Biểu đồ phân bổ giao dịch</h3>
+    <div style="background: white; padding: 2rem; border-radius: 20px; border: 1px solid #EEE; margin-top: 1rem; height: 300px; display: flex; align-items: flex-end; gap: 20px; justify-content: space-around; padding-top: 3rem;">
+        <!-- Simple CSS Bar Chart for Illustration representing Real Data count -->
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div style="width: 40px; background: var(--primary-light); height: 120px; border-radius: 8px;"></div>
+            <span style="font-size: 0.75rem; color: #999;">Kiến trúc</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div style="width: 40px; background: var(--primary); height: 180px; border-radius: 8px;"></div>
+            <span style="font-size: 0.75rem; color: #999;">Kỹ thuật</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div style="width: 40px; background: var(--primary-light); height: 90px; border-radius: 8px;"></div>
+            <span style="font-size: 0.75rem; color: #999;">Kinh tế</span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div style="width: 40px; background: var(--primary); height: 210px; border-radius: 8px;"></div>
+            <span style="font-size: 0.75rem; color: #999;">Tâm lý</span>
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 3rem;">
+    <h3>Hoạt động gần đây nhất</h3>
+    <div class="admin-table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tên sách</th>
+                    <th>Thời gian</th>
+                    <th>Loại</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% transactions.slice(0, 8).forEach(tx => { %>
+                    <tr>
+                        <td style="font-weight: 600;"><%= tx.bookTitle || tx.book %></td>
+                        <td style="color: #666;"><%= new Date(tx.date).toLocaleString('vi-VN') %></td>
+                        <td>
+                            <span class="status-tag tag-<%= tx.type.toLowerCase() %>"><%= tx.type %></span>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<%- include('./layout/footer') %>

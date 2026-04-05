@@ -1,0 +1,14 @@
+<%- include('components/header') %>
+
+<div style="text-align: center; padding: 5rem 2rem;">
+    <div style="font-size: 8rem; font-weight: 800; color: var(--primary); line-height: 1; opacity: 0.1; position: absolute; left: 50%; transform: translateX(-50%); z-index: -1;">404</div>
+    <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Ôi! Có vẻ bạn đã đi lạc?</h1>
+    <p style="color: #666; max-width: 500px; margin: 0 auto 2.5rem;">Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển. Đừng lo, những cuốn sách hay vẫn đang chờ bạn ở trang chủ.</p>
+    
+    <div style="display: flex; gap: 15px; justify-content: center;">
+        <a href="/" class="btn-action" style="text-decoration: none;">Về trang chủ</a>
+        <button onclick="history.back()" style="background: none; border: 1px solid #DDD; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">Quay lại</button>
+    </div>
+</div>
+
+<%- include('components/footer') %>

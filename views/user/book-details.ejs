@@ -1,0 +1,131 @@
+<%- include('../components/header') %>
+
+<div class="book-detail-wrapper">
+    <div class="breadcrumb">
+        <a href="/">Khám phá</a> <i class="fas fa-chevron-right"></i> <span>Chi tiết sách</span>
+    </div>
+
+    <div class="book-detail-container">
+        <!-- Left: Book Cover -->
+        <div class="book-visual">
+            <div class="cover-card">
+                <img src="<%= book.cover || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800' %>" alt="<%= book.title %>">
+                <div class="cover-overlay"></div>
+            </div>
+            <% if ((book.quantity || 0) > 0) { %>
+                <div class="stock-badge available"><i class="fas fa-check-circle"></i> Còn <%= book.quantity %> cuốn sẵn sàng</div>
+            <% } else { %>
+                <div class="stock-badge borrowed"><i class="fas fa-clock"></i> Hiện đã hết sách trong kho</div>
+            <% } %>
+        </div>
+
+        <!-- Right: Book Info -->
+        <div class="book-content">
+            <div class="book-header">
+                <span class="category-tag"><%= book.category || book.genre || 'Tài liệu tổng hợp' %></span>
+                <h1><%= book.title %></h1>
+                <p class="author-name">Tác giả: <strong><%= book.author || 'Đang cập nhật' %></strong></p>
+                
+                <div class="rating-row">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <span>4.5/5 (128 đánh giá)</span>
+                </div>
+            </div>
+
+            <div class="metadata-grid">
+                <div class="meta-item">
+                    <label>Mã sách</label>
+                    <p><%= book.id_code || 'LIB-' + book.id.substring(0,6).toUpperCase() %></p>
+                </div>
+                <div class="meta-item">
+                    <label>Tổng số bản</label>
+                    <p><%= book.totalQuantity || book.quantity || 1 %></p>
+                </div>
+                <div class="meta-item">
+                    <label>Định dạng</label>
+                    <p>Bìa cứng / PDF</p>
+                </div>
+                <div class="meta-item">
+                    <label>Ngôn ngữ</label>
+                    <p>Tiếng Việt / Anh</p>
+                </div>
+            </div>
+
+            <div class="book-description">
+                <h3>Về cuốn sách này</h3>
+                <p><%= book.description %></p>
+            </div>
+
+            <div class="action-footer">
+                <% if ((book.quantity || 0) > 0 && !isAlreadyBorrowing && !hasReachedLimit) { %>
+                    <a href="/borrow/slip/<%= book.id %>" class="btn-borrow-main">
+                        <i class="fas fa-plus-circle"></i> Thêm vào tủ sách của tôi
+                    </a>
+<% } else { %>
+                    <% 
+                        let btnText = "Không thể mượn";
+                        let btnIcon = "fa-calendar-times";
+                        if (book.quantity <= 0) {
+                            btnText = "Sách hiện đã hết";
+                        } else if (isAlreadyBorrowing) {
+                            btnText = "Bạn đang mượn cuốn này";
+                            btnIcon = "fa-check-double";
+                        } else if (hasReachedLimit) {
+                            btnText = "Đã đạt giới hạn 10 cuốn";
+                            btnIcon = "fa-exclamation-triangle";
+                        }
+                    %>
+                    <button class="btn-borrow-main disabled" disabled>
+                        <i class="fas <%= btnIcon %>"></i> <%= btnText %>
+                    </button>
+                    <% if (hasReachedLimit) { %>
+                        <p style="color: #E53935; font-size: 0.8rem; margin-top: 10px; font-weight: 600;">* Bạn cần trả sách bớt để tiếp tục mượn.</p>
+                    <% } %>
+                <% } %>
+                <button class="btn-wishlist">
+                    <i class="far fa-heart"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.book-detail-wrapper { padding: 2rem 0; animation: slideUp 0.6s ease-out; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.breadcrumb { margin-bottom: 2rem; font-size: 0.9rem; color: #999; display: flex; align-items: center; gap: 10px; }
+.breadcrumb a { color: var(--primary); text-decoration: none; font-weight: 600; }
+.book-detail-container { display: grid; grid-template-columns: 350px 1fr; gap: 4rem; background: white; border-radius: 30px; padding: 3rem; box-shadow: 0 20px 60px rgba(0,0,0,0.06); border: 1px solid #F0F0F0; }
+.book-visual { display: flex; flex-direction: column; gap: 1.5rem; }
+.cover-card { position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 2/3; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+.cover-card img { width: 100%; height: 100%; object-fit: cover; }
+.cover-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(0deg, rgba(0,0,0,0.2) 0%, transparent 50%); }
+.stock-badge { padding: 12px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.stock-badge.available { background: #E8F5E9; color: #2E7D32; }
+.stock-badge.borrowed { background: #FFF3E0; color: #EF6C00; }
+.book-header .category-tag { display: inline-block; padding: 4px 12px; background: var(--bg-soft); color: var(--primary); border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem; }
+.book-header h1 { font-size: 3rem; color: var(--text-dark); line-height: 1.1; margin-bottom: 0.5rem; font-weight: 800; }
+.author-name { font-size: 1.2rem; color: #666; margin-bottom: 1rem; }
+.rating-row { display: flex; align-items: center; gap: 1rem; color: #999; font-size: 0.9rem; }
+.stars { color: #FFD700; }
+.metadata-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin: 2.5rem 0; padding: 1.5rem; background: #F9FBF9; border-radius: 20px; }
+.meta-item label { display: block; font-size: 0.75rem; color: #999; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+.meta-item p { font-weight: 700; color: var(--text-dark); }
+.book-description h3 { font-size: 1.25rem; margin-bottom: 1rem; color: var(--text-dark); }
+.book-description p { color: #555; line-height: 1.7; }
+.action-footer { margin-top: 3rem; display: flex; gap: 1rem; }
+.btn-borrow-main { padding: 18px 40px; background: var(--primary); color: white; border: none; border-radius: 15px; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 12px; }
+.btn-borrow-main:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(26, 83, 25, 0.2); }
+.btn-borrow-main.disabled { background: #EEE; color: #999; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-wishlist { width: 60px; height: 60px; border-radius: 15px; border: 2px solid #EEE; background: white; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #CCC; cursor: pointer; transition: 0.3s; }
+.btn-wishlist:hover { border-color: #FFCDD2; color: #E53935; background: #FFEBEE; }
+@media (max-width: 1024px) { .book-detail-container { grid-template-columns: 1fr; gap: 2rem; } .book-visual { max-width: 300px; margin: 0 auto; } }
+</style>
+
+<%- include('../components/footer') %>

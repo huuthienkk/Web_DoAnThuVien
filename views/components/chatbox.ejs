@@ -1,0 +1,140 @@
+<div class="chat-widget" id="chatWidget">
+    <button class="chat-bubble" id="chatTrigger">
+        <i class="fas fa-comment-dots"></i>
+        <div class="chat-badge" id="chatBadge" style="display: none;"></div>
+    </button>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="chat-header-user">
+                <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=100" alt="Bot">
+                <div class="chat-header-info">
+                    <h4>G-Bot Trợ lý 🌿</h4>
+                    <p>Sẵn sàng hỗ trợ bạn</p>
+                </div>
+            </div>
+            <button id="closeChat" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="chat-body" id="chatBody">
+            <!-- Messages will appear here -->
+        </div>
+
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." autocomplete="off">
+            <button id="sendMsg">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatWidget = document.getElementById('chatWidget');
+    const chatTrigger = document.getElementById('chatTrigger');
+    const chatWindow = document.getElementById('chatWindow');
+    const chatBody = document.getElementById('chatBody');
+    const chatInput = document.getElementById('chatInput');
+    const sendMsg = document.getElementById('sendMsg');
+    const closeChat = document.getElementById('closeChat');
+    const chatBadge = document.getElementById('chatBadge');
+
+    let hasOpened = false;
+
+    // Basic QA Logic
+    const botAnswers = {
+        "chào": "Chào bạn! Mình là G-Bot, trợ lý ảo của Green Library. Mình có thể giúp gì cho bạn?",
+        "hi": "Chào bạn! Chúc bạn một ngày đọc sách thật hiệu quả.",
+        "mượn sách": "Để mượn sách, bạn hãy chọn cuốn sách yêu thích, nhấn 'Mượn ngay' và chọn ngày trả nhé. Lưu ý bạn mượn tối đa 10 cuốn.",
+        "trả sách": "Bạn vui lòng mang sách đến quầy thủ thư để trả. Chúng mình sẽ cập nhật trạng thái ngay sau đó.",
+        "giờ làm việc": "Thư viện mở cửa từ 7:30 đến 21:00 các ngày trong tuần, và 8:00 đến 17:00 vào cuối tuần bạn nhé.",
+        "gia hạn": "Bạn có thể vào mục 'Tủ sách của tôi', chọn cuốn sách muốn gia hạn và nhấn 'Gia hạn' (tổng cộng tối đa 30 ngày).",
+        "địa chỉ": "Thư viện nằm tại tầng 2, tòa nhà Trung tâm Tri thức đấy!",
+        "cảm ơn": "Rất vui được hỗ trợ bạn! Hẹn gặp lại nhé. 🌿",
+        "default": "Câu này hơi khó với mình rồi. Bạn có thể hỏi về: 'cán mượn sách', 'gia hạn', hoặc 'giờ làm việc' được không?"
+    };
+
+    function addMessage(text, sender = 'bot') {
+        const div = document.createElement('div');
+        div.className = `msg msg-${sender}`;
+        div.innerText = text;
+        chatBody.appendChild(div);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function showTyping() {
+        const typing = document.createElement('div');
+        typing.className = 'typing-container';
+        typing.id = 'typingIndicator';
+        typing.innerHTML = `
+            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=100">
+            <div class="typing">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        `;
+        chatBody.appendChild(typing);
+        chatBody.scrollTop = chatBody.scrollHeight;
+        return typing;
+    }
+
+    async function botRespond(userText) {
+        const indicator = showTyping();
+        
+        // Simulate delay
+        await new Promise(r => setTimeout(r, 1500));
+        indicator.remove();
+
+        const lowerText = userText.toLowerCase().trim();
+        let answer = botAnswers["default"];
+
+        for (const key in botAnswers) {
+            if (lowerText.includes(key)) {
+                answer = botAnswers[key];
+                break;
+            }
+        }
+
+        addMessage(answer, 'bot');
+    }
+
+    function toggleChat() {
+        chatWindow.classList.toggle('open');
+        chatBadge.style.display = 'none';
+        if (chatWindow.classList.contains('open')) {
+            chatInput.focus();
+            hasOpened = true;
+        }
+    }
+
+    chatTrigger.addEventListener('click', toggleChat);
+    closeChat.addEventListener('click', toggleChat);
+
+    function handleSend() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'user');
+        chatInput.value = '';
+        botRespond(text);
+    }
+
+    sendMsg.addEventListener('click', handleSend);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSend();
+    });
+
+    // Auto-open logic after 5 seconds
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (!hasOpened) {
+                chatWindow.classList.add('open');
+                chatBadge.style.display = 'block';
+                addMessage("Chào mừng bạn trở lại với Green Library! Mình là G-Bot, mình có thể giúp bạn tìm sách hoặc hướng dẫn mượn trả đấy. 🌿", 'bot');
+            }
+        }, 5000);
+    });
+</script>

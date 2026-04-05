@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="auth-wrapper">
+    <div class="auth-card" style="max-width: 520px;">
+        <div class="auth-header">
+            <a href="/" class="logo" style="text-decoration: none; color: var(--primary); font-weight: 800;">Thư viện số</a>
+            <%- include('../components/alerts') %>
+            <p style="color: #999; font-size: 0.9rem;">Trở thành thành viên của cộng đồng tri thức.</p>
+        </div>
+
+        <form action="/register" method="POST" class="auth-form">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="fullname">Họ và tên</label>
+                    <input type="text" id="fullname" name="fullname" placeholder="Nguyễn Văn An" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentid">Mã số sinh viên</label>
+                    <input type="text" id="studentid" name="studentid" placeholder="SV123456" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email sinh viên</label>
+                <input type="email" id="email" name="email" placeholder="an.nv@university.edu.vn" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
+            </div>
+
+            <div style="margin: 1.5rem 0; font-size: 0.8rem; color: #999; display: flex; align-items: flex-start; gap: 8px;">
+                <input type="checkbox" style="width: auto; margin-top: 3px;" required>
+                <span>Tôi đồng ý với <a href="#" style="color: var(--primary); font-weight: 600; text-decoration: none;">Điều khoản dịch vụ</a> và <a href="#" style="color: var(--primary); font-weight: 600; text-decoration: none;">Chính sách bảo mật</a> của Thư viện số.</span>
+            </div>
+            
+            <button type="submit" class="auth-btn">Tạo tài khoản</button>
+        </form>
+
+        <div class="auth-footer">
+            Bạn đã có tài khoản? <a href="/login">Đăng nhập</a>
+        </div>
+    </div>
+</body>
+</html>

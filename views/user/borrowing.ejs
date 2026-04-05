@@ -1,0 +1,104 @@
+<%- include('../components/header') %>
+
+<section>
+    <h2>Sách đang mượn</h2>
+    <p style="color: #666; margin-bottom: 2rem;">Quản lý các tài liệu bạn đang giữ từ The Digital Conservatory.</p>
+</section>
+
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <p style="opacity: 0.9; font-size: 0.8rem; text-transform: uppercase;">Tổng số sách mượn</p>
+        <h1 style="font-size: 2.5rem; margin-top: 10px;"><%= summary.totalCount.toString().padStart(2, '0') %> <span style="font-size: 1rem; font-weight: normal;">quyển</span></h1>
+    </div>
+    <div class="stat-card white">
+        <p style="color: #666; font-size: 0.8rem; text-transform: uppercase;">Hạn trả gần nhất</p>
+        <h1 style="font-size: 1.8rem; color: var(--primary); margin-top: 10px;"><%= summary.earliestDueDate %></h1>
+        <% if (summary.daysRemaining !== null) { %>
+            <p class="<%= summary.daysRemaining < 0 ? 'text-overdue' : 'text-secondary' %>" style="font-size: 0.8rem; margin-top: 2px;">
+                <%= summary.daysRemaining < 0 ? `Quá hạn ${Math.abs(summary.daysRemaining)} ngày` : `Còn ${summary.daysRemaining} ngày nữa` %>
+            </p>
+        <% } %>
+    </div>
+    <div class="stat-card white">
+        <p style="color: #666; font-size: 0.8rem; text-transform: uppercase;">Trạng thái tài khoản</p>
+        <div style="display: flex; align-items: center; margin-top: 10px; color: var(--secondary); font-weight: 700;">
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--secondary); margin-right: 8px;"></span>
+            Đang hoạt động
+        </div>
+        <p style="color: #999; font-size: 0.8rem; margin-top: 5px;">Không có khoản phạt trễ hạn</p>
+    </div>
+</div>
+
+<section>
+    <div class="section-title">
+        <h3>Danh sách chi tiết</h3>
+        <select style="padding: 5px 15px; border-radius: 20px; border: 1px solid #EEE; font-size: 0.8rem;">
+            <option>Sắp xếp theo ngày</option>
+        </select>
+    </div>
+
+    <% borrowingBooks.forEach(book => { %>
+        <div class="borrowing-item <%= book.status === 'Overdue' ? 'overdue' : '' %>">
+            <div class="item-left">
+                <img src="<%= book.cover %>" class="item-thumb" alt="<%= book.title %>" style="width: 80px; height: 110px;">
+                <div class="item-details">
+                    <h4 style="font-size: 1.2rem;"><%= book.title %></h4>
+                    <p><%= book.author %></p>
+                    <div style="margin-top: 10px; display: flex; gap: 10px; align-items: center;">
+                        <span style="background: #F0F0F0; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">ISBN-978-0743273565</span>
+                        <span style="background: #E8F5E9; color: var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">Kệ A-12</span>
+                        <div class="status-tag tag-<%= book.status.toLowerCase() %>" style="margin-left: 10px; font-size: 0.65rem; padding: 2px 8px;">
+                            <%= book.status === 'Active' ? 'CHỜ NHẬN' : (book.status === 'Borrowed' ? 'ĐÃ NHẬN' : 'QUÁ HẠN') %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="item-right" style="text-align: right;">
+                <p style="font-size: 0.75rem; color: #999; text-transform: uppercase;">Hạn trả sách</p>
+                <strong style="display: block; font-size: 1.1rem; margin-bottom: 10px;"><%= book.dueDate %></strong>
+                <% if (book.status !== 'Overdue') { %>
+                    <a href="/renew/<%= book.transId %>" class="btn-action" style="text-decoration: none; display: inline-block; text-align: center;">
+                        Gia hạn
+                    </a>
+                <% } else { %>
+                    <button class="btn-action" onclick="alert('Vui lòng liên hệ thủ thư để xử lý sách quá hạn.')">
+                        Quá hạn
+                    </button>
+                <% } %>
+            </div>
+        </div>
+    <% }) %>
+</section>
+
+<script>
+    async function renewBook(transId) {
+        if (!confirm('Bạn có muốn gia hạn cuốn sách này không?')) return;
+        
+        try {
+            const response = await fetch('/renew/' + transId, { method: 'POST' });
+            const result = await response.json();
+            
+            if (result.success) {
+                alert(result.message);
+                location.reload();
+            } else {
+                alert('Lỗi: ' + result.message);
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Lỗi hệ thống khi gia hạn');
+        }
+    }
+</script>
+
+<style>
+    .text-overdue { color: #E74C3C; font-weight: 700; }
+    .text-secondary { color: var(--secondary); font-weight: 700; }
+    .status-tag { border-radius: 6px; font-weight: 800; text-transform: uppercase; border: 1px solid transparent; }
+    .tag-active { background: #FFF9C4; color: #F57F17; border-color: #FFF176; }
+    .tag-borrowed { background: #E8F5E9; color: #2E7D32; border-color: #C8E6C9; }
+    .tag-overdue { background: #FFEBEE; color: #C62828; border-color: #FFCDD2; }
+</style>
+
+<%- include('../components/footer') %>
