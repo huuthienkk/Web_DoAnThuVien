@@ -8,7 +8,10 @@ let serviceAccount = null;
 try {
   const saPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
   if (saPath) {
-    serviceAccount = require(path.resolve(saPath));
+    // Resolve the path relative to the config directory (__dirname)
+    // saPath is something like './config/serviceAccountKey.json'
+    // so we step back one folder level to be at the project root.
+    serviceAccount = require(path.resolve(__dirname, '..', saPath));
   }
 } catch (e) {
   console.error('Failed to load Firebase Service Account:', e.message);

@@ -53,7 +53,9 @@
         "thời gian": "Thư viện mở cửa từ 7:30 đến 21:00 các ngày trong tuần, và 8:00 đến 17:00 vào cuối tuần bạn nhé.",
         "gia hạn": "Bạn có thể vào mục 'Tủ sách của tôi', chọn cuốn sách muốn gia hạn và nhấn 'Gia hạn' (tổng cộng tối đa 30 ngày).",
         "địa chỉ": "Thư viện nằm tại tầng 2, tòa nhà Trung tâm Tri thức đấy!",
-        "cảm ơn": "Rất vui được hỗ trợ bạn! Hẹn gặp lại nhé. 🌿"
+        "cảm ơn": "Rất vui được hỗ trợ bạn! Hẹn gặp lại nhé. 🌿",
+        "hỗ trợ": "Mình có thể giúp bạn tìm kiếm sách trực tiếp, hướng dẫn quy định mượn/trả, gia hạn sách, báo giờ mở cửa và địa chỉ. Bạn muốn hỏi về phần nào?",
+        "giúp": "Mình có thể tìm sách giúp bạn (Ví dụ: nhắn 'có sách ... không?'), hoặc hướng dẫn các quy trình mượn trả, giờ giấc mở cửa của thư viện. Bạn muốn mình giúp gì nào?"
     };
 
     // Calculate similarity between two strings
@@ -128,10 +130,24 @@
         
         const lowerText = userText.toLowerCase().trim();
         
+        const isBookSearch = lowerText.startsWith("tìm") || 
+                             lowerText.includes("có sách") || 
+                             lowerText.includes("cho hỏi sách") ||
+                             lowerText.includes("vậy sách") ||
+                             lowerText.includes("cuốn sách") ||
+                             lowerText.startsWith("sách");
+
         // 1. Check for Book Search intent
-        if (lowerText.startsWith("tìm") || lowerText.includes("có sách") || lowerText.includes("cho hỏi sách")) {
+        if (isBookSearch) {
             // Extract keyword
-            let keyword = lowerText.replace(/tìm sách|tìm kiếm|tìm|có sách|cho hỏi sách|không|nhé/g, "").trim();
+            let keyword = lowerText.replace(/tìm sách|tìm kiếm|tìm|có sách|cho hỏi sách|vậy sách|cuốn sách|vậy|thì sao|không|nhé|nhỉ|ạ|[?!.,;:]/g, "").trim();
+            
+            // Xóa chữ "sách" nếu nó nằm ở đầu câu rác do cách trò chuyện
+            if (keyword.startsWith("sách ")) {
+                keyword = keyword.substring(5);
+            }
+            keyword = keyword.replace(/\s+/g, " ").trim();
+            
             if (keyword.length > 1) {
                 const books = await searchBooks(keyword);
                 indicator.remove();

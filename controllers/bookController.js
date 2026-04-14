@@ -150,7 +150,7 @@ exports.postConfirmSlip = async (req, res) => {
     
     const transactionId = await bookModel.borrowBook(req.params.id, userId, returnDate);
     req.flash('success_msg', 'Mượn sách thành công!');
-    res.redirect(`/print-slip/${transactionId}?autoPrint=true`);
+    res.redirect(`/borrow/print/${transactionId}?autoPrint=true`);
   } catch (e) {
     req.flash('error_msg', 'Lỗi khi mượn sách: ' + e.message);
     res.redirect('back');

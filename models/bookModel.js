@@ -294,7 +294,7 @@ module.exports = {
             slipCode: slipCode,
             bookTitle: data.title,
             cover: data.cover,
-            userName: (await db.collection('users').doc(userId).get()).data().name || 'Sinh viên',
+            userName: (await db.collection('users').doc(userId).get()).data()?.name || 'Sinh viên',
             type: 'Borrow',
             date: now,
             dueDate: new Date(returnDate),
