@@ -201,6 +201,20 @@ module.exports = {
       return [];
     }
   },
+  getRelatedBooks: async (category, excludeId) => {
+    if (!category) return [];
+    try {
+      const snapshot = await db.collection('books')
+          .where('category', '==', category)
+          .limit(6)
+          .get();
+      const books = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      return books.filter(b => b.id !== excludeId).slice(0, 4);
+    } catch (e) {
+      console.error('getRelatedBooks Error:', e);
+      return [];
+    }
+  },
   getUserStats: async (userId) => {
     if (!userId) return { readCount: 0, borrowingCount: 0 };
     try {
@@ -280,6 +294,7 @@ module.exports = {
             slipCode: slipCode,
             bookTitle: data.title,
             cover: data.cover,
+            userName: (await db.collection('users').doc(userId).get()).data().name || 'Sinh viên',
             type: 'Borrow',
             date: now,
             dueDate: new Date(returnDate),
@@ -287,7 +302,7 @@ module.exports = {
             createdAt: now
         });
 
-        return true;
+        return transRef.id;
     });
   },
   updateUser: async (userId, data) => {
@@ -299,7 +314,7 @@ module.exports = {
     const doc = await db.collection('users').doc(userId).get();
     return { id: doc.id, ...doc.data() };
   },
-  updateTransactionStatus: async (transactionId, status) => {
+  updateTransactionStatus: async (transactionId, status, feeData = {}) => {
     try {
       const transRef = db.collection('transactions').doc(transactionId);
       
@@ -327,10 +342,21 @@ module.exports = {
               }
           }
 
-          transaction.update(transRef, { 
+          const updateData = { 
               status,
               updatedAt: new Date()
-          });
+          };
+
+          // If returning, record fees and condition
+          if (status === 'Returned') {
+              updateData.lateFee = parseInt(feeData.lateFee) || 0;
+              updateData.damageFee = parseInt(feeData.damageFee) || 0;
+              updateData.totalFee = updateData.lateFee + updateData.damageFee;
+              updateData.condition = feeData.condition || 'Nguyên vẹn';
+              updateData.returnDateActual = new Date();
+          }
+
+          transaction.update(transRef, updateData);
 
           return true;
       });

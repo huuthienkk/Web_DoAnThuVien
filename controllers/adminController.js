@@ -33,8 +33,8 @@ exports.getTransactions = async (req, res, next) => {
 
 exports.postUpdateTransactionStatus = async (req, res, next) => {
     try {
-        const { id, status } = req.body;
-        const success = await bookModel.updateTransactionStatus(id, status);
+        const { id, status, lateFee, damageFee, condition } = req.body;
+        const success = await bookModel.updateTransactionStatus(id, status, { lateFee, damageFee, condition });
         
         if (req.headers.accept && req.headers.accept.indexOf('application/json') !== -1) {
             return res.json({ success, message: success ? 'Cập nhật thành công' : 'Không thể cập nhật' });

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu mượn - <%= transaction.slipCode %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px;
+            color: #333;
+            background: #F5F5F5;
+        }
+        .print-container {
+            background: white;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #DDD;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .header p {
+            margin: 5px 0 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .slip-code {
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 2px dashed #333;
+        }
+        .info-section {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .label {
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        .value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .footer-note {
+            margin-top: 40px;
+            font-size: 12px;
+            font-style: italic;
+            border-top: 1px solid #EEE;
+            padding-top: 20px;
+            line-height: 1.6;
+        }
+        .btn-print {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .print-container { border: none; box-shadow: none; width: 100%; max-width: 100%; }
+            .btn-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <div class="header">
+            <h1>Green Library</h1>
+            <p>Phiếu Mượn Tài Liệu Trực Tuyến</p>
+        </div>
+
+        <div class="slip-code">
+            <%= transaction.slipCode %>
+        </div>
+
+        <div class="info-section">
+            <div class="label">Người mượn:</div>
+            <div class="value"><%= transaction.userName || 'Sinh viên' %> (<%= transaction.userId %>)</div>
+            
+            <div class="label">Tên sách:</div>
+            <div class="value"><%= transaction.bookTitle %></div>
+            
+            <div class="label">Mã sách:</div>
+            <div class="value"><%= (transaction.bookId || '').substring(0, 8).toUpperCase() %></div>
+            
+            <div class="label">Ngày đăng ký:</div>
+            <div class="value"><%= transaction.date.toDate ? transaction.date.toDate().toLocaleDateString('vi-VN') : new Date(transaction.date).toLocaleDateString('vi-VN') %></div>
+            
+            <div class="label">Hạn trả:</div>
+            <div class="value" style="color: #C0392B;"><%= transaction.dueDate.toDate ? transaction.dueDate.toDate().toLocaleDateString('vi-VN') : new Date(transaction.dueDate).toLocaleDateString('vi-VN') %></div>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <p style="font-size: 14px;">Vui lòng mang phiếu này (hoặc chụp màn hình) đến thư viện để nhận sách.</p>
+        </div>
+
+        <div class="footer-note">
+            * Lưu ý: <br>
+            - Thời gian mượn tối đa là 14 ngày. Trả muộn sẽ phát sinh phí phạt theo quy định.<br>
+            - Vui lòng bảo quản sách cẩn thận. Mọi hư hỏng sẽ được tính phí khi trả sách.
+        </div>
+    </div>
+
+    <button onclick="window.print()" class="btn-print">
+        <i class="fas fa-print"></i> NHẤN ĐỂ IN PHIẾU
+    </button>
+    
+    <% if (locals.autoPrint) { %>
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500); // slight delay to ensure rendering
+        };
+    </script>
+    <% } %>
+</body>
+</html>

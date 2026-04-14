@@ -38,9 +38,21 @@
                     <strong><%= item.returnDate %></strong>
                 </div>
                 <div class="status-badge status-<%= (item.status || 'Active').toLowerCase() %>">
-                    <%= item.status === 'Active' ? 'CHỜ NHẬN' : (item.status === 'Borrowed' ? 'ĐÃ NHẬN' : (item.status === 'Returned' ? 'ĐÃ TRẢ' : (item.status === 'Cancelled' ? 'ĐÃ HỦY' : 'QUÁ HẠN'))) %>
+                    <%= item.status === 'Active' ? 'CHỜ NHẬN' : (item.status === 'Borrowed' ? 'ĐÃ NHẬN' : (item.status === 'Returned' ? 'ĐÃ TRẢ' : (item.status === 'Cancelled' ? 'ĐÃ HUỶ' : 'QUÁ HẠN'))) %>
                 </div>
+                
+                <% if (item.status === 'Active' || item.status === 'Borrowed') { %>
+                    <a href="/borrow/print/<%= item.id %>" target="_blank" class="btn-print-mini" title="In phiếu mượn">
+                        <i class="fas fa-print"></i> In phiếu
+                    </a>
+                <% } %>
             </div>
+            <% if (item.status === 'Returned' && (item.totalFee > 0 || item.condition)) { %>
+                <div class="item-footer-fee">
+                    <span class="fee-tag"><i class="fas fa-hand-holding-usd"></i> Tổng phí: <%= (item.totalFee || 0).toLocaleString() %>đ</span>
+                    <span class="condition-tag"><i class="fas fa-clipboard-check"></i> Tình trạng: <%= item.condition || 'Nguyên vẹn' %></span>
+                </div>
+            <% } %>
         </div>
     <% }) %>
     
@@ -83,6 +95,34 @@
 .status-returned { background: #F5F5F5; color: #616161; border: 1px solid #E0E0E0; }
 .status-cancelled { background: #FAFAFA; color: #BBB; border: 1px solid #EEE; text-decoration: line-through; }
 .status-overdue { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+
+.btn-print-mini {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    background: #555;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s;
+    justify-content: center;
+}
+.btn-print-mini:hover { background: #333; }
+
+.item-footer-fee {
+    grid-column: 1 / -1;
+    margin-top: 15px;
+    padding-top: 12px;
+    border-top: 1px solid #F0F0F0;
+    display: flex;
+    gap: 20px;
+}
+.fee-tag { color: #E67E22; font-weight: 700; font-size: 0.85rem; }
+.condition-tag { color: #27AE60; font-weight: 700; font-size: 0.85rem; }
 </style>
 
 <%- include('../components/footer') %>

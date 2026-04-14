@@ -36,6 +36,7 @@
                 <th>Người mượn (MSSV)</th>
                 <th>Ngày mượn</th>
                 <th>Hạn trả</th>
+                <th>Phí / Tình trạng</th>
                 <th>Trạng thái</th>
                 <th style="text-align: right;">Thao tác</th>
             </tr>
@@ -61,6 +62,15 @@
                         <%= tx.dueDate %>
                     </td>
                     <td>
+                        <% if (tx.status === 'Returned') { %>
+                            <div style="font-size: 0.8rem;">
+                                <strong><%= (tx.totalFee || 0).toLocaleString() %>đ</strong> / <%= tx.condition || 'Bình thường' %>
+                            </div>
+                        <% } else { %>
+                            <span style="color: #CCC;">--</span>
+                        <% } %>
+                    </td>
+                    <td>
                         <% if (tx.status === 'Active') { %>
                             <span class="status-tag tag-active">Chờ sinh viên nhận</span>
                         <% } else if (tx.status === 'Borrowed') { %>
@@ -76,7 +86,7 @@
                             <button onclick="updateStatus('<%= tx.id %>', 'Borrowed')" class="btn-sm btn-borrow" <%= tx.status === 'Borrowed' || tx.status === 'Returned' || tx.status === 'Cancelled' ? 'disabled' : '' %> title="Xác nhận mượn">
                                 Đã mượn
                             </button>
-                            <button onclick="updateStatus('<%= tx.id %>', 'Returned')" class="btn-sm btn-return" <%= tx.status === 'Returned' || tx.status === 'Active' || tx.status === 'Cancelled' ? 'disabled' : '' %> title="Xác nhận trả">
+                            <button onclick="showReturnModal('<%= tx.id %>')" class="btn-sm btn-return" <%= tx.status === 'Returned' || tx.status === 'Active' || tx.status === 'Cancelled' ? 'disabled' : '' %> title="Xác nhận trả">
                                 Đã trả
                             </button>
                             <button onclick="updateStatus('<%= tx.id %>', 'Cancelled')" class="btn-sm" style="background: #EEE; color: #666;" <%= tx.status === 'Returned' || tx.status === 'Cancelled' ? 'disabled' : '' %> title="Hủy phiếu">
@@ -90,9 +100,61 @@
     </table>
 </div>
 
+<!-- Return Modal -->
+<div id="returnModal" class="modal">
+    <div class="modal-content">
+        <h3>Xác nhận trả sách</h3>
+        <p>Vui lòng kiểm tra tình trạng sách và tính phí (nếu có).</p>
+        <input type="hidden" id="currentTransId">
+        
+        <div class="form-group-admin">
+            <label>Phí quá hạn (VNĐ)</label>
+            <input type="number" id="lateFee" value="0" min="0">
+        </div>
+        
+        <div class="form-group-admin">
+            <label>Phí hư hỏng (VNĐ)</label>
+            <input type="number" id="damageFee" value="0" min="0">
+        </div>
+        
+        <div class="form-group-admin">
+            <label>Tình trạng sách</label>
+            <select id="bookCondition">
+                <option value="Nguyên vẹn">Nguyên vẹn</option>
+                <option value="Hư hỏng nhẹ">Hư hỏng nhẹ</option>
+                <option value="Rách/Mất trang">Rách/Mất trang</option>
+                <option value="Mất sách">Mất sách</option>
+            </select>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 1.5rem;">
+            <button onclick="submitReturn()" class="btn-confirm-admin">Xác nhận trả</button>
+            <button onclick="closeModal()" class="btn-cancel-admin">Hủy</button>
+        </div>
+    </div>
+</div>
+
 <script>
-async function updateStatus(id, status) {
-    if (!confirm(`Bạn muốn cập nhật trạng thái này sang "${status}"?`)) return;
+function showReturnModal(id) {
+    document.getElementById('currentTransId').value = id;
+    document.getElementById('returnModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('returnModal').style.display = 'none';
+}
+
+async function submitReturn() {
+    const id = document.getElementById('currentTransId').value;
+    const lateFee = document.getElementById('lateFee').value;
+    const damageFee = document.getElementById('damageFee').value;
+    const condition = document.getElementById('bookCondition').value;
+    
+    await updateStatus(id, 'Returned', { lateFee, damageFee, condition });
+}
+
+async function updateStatus(id, status, extraData = {}) {
+    if (status !== 'Returned' && !confirm(`Bạn muốn cập nhật trạng thái này sang "${status}"?`)) return;
     
     try {
         const response = await fetch('/admin/update-transaction-status', {
@@ -101,11 +163,11 @@ async function updateStatus(id, status) {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ id, status })
+            body: JSON.stringify({ id, status, ...extraData })
         });
         const result = await response.json();
         if (result.success) {
-            location.reload(); // Still reloading for simplicity to update stats/tags, but now via AJAX
+            location.reload();
         } else {
             alert('Lỗi: ' + result.message);
         }
@@ -132,6 +194,60 @@ async function updateStatus(id, status) {
 .btn-sm:disabled { opacity: 0.3; cursor: not-allowed; }
 .btn-borrow { background: var(--primary); color: white; }
 .btn-return { background: var(--secondary); color: white; }
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.form-group-admin {
+    margin-bottom: 1rem;
+}
+.form-group-admin label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+.form-group-admin input, .form-group-admin select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #DDD;
+    border-radius: 8px;
+    outline: none;
+}
+.btn-confirm-admin {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    flex: 1;
+}
+.btn-cancel-admin {
+    background: #EEE;
+    color: #666;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    flex: 1;
+}
 </style>
 
 </body>

@@ -40,12 +40,15 @@
                 <form action="/borrow/confirm/<%= book.id %>" method="POST" class="slip-form">
                     <div class="form-group">
                         <label for="returnDate">Ngày dự kiến trả *</label>
-                        <input type="date" id="returnDate" name="returnDate" required min="<%= new Date().toISOString().split('T')[0] %>">
+                        <input type="date" id="returnDate" name="returnDate" required 
+                               min="<%= new Date().toISOString().split('T')[0] %>"
+                               max="<%= new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] %>">
+                        <small class="limit-note"><i class="fas fa-clock"></i> Thời gian mượn tối đa là 14 ngày.</small>
                     </div>
 
                     <div class="note-box">
                         <i class="fas fa-info-circle"></i>
-                        <p>Sinh viên vui lòng ghi nhớ mã phiếu mượn này để cung cấp cho thủ thư khi lên thư viện nhận sách trực tiếp.</p>
+                        <p>Sinh viên vui lòng ghi nhớ mã phiếu mượn này để cung cấp cho thủ thư khi lên thư viện nhận sách trực tiếp. Lưu ý: <strong>Thời gian mượn sách tối đa là 14 ngày</strong> tính từ ngày nhận sách.</p>
                     </div>
 
                     <button type="submit" class="btn-confirm-slip">
@@ -186,6 +189,14 @@
     font-family: inherit;
     font-size: 1rem;
     outline: none;
+}
+
+.limit-note {
+    display: block;
+    margin-top: 8px;
+    color: #e67e22;
+    font-weight: 600;
+    font-size: 0.85rem;
 }
 
 .note-box {

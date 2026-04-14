@@ -81,11 +81,15 @@ exports.getBookDetails = async (req, res) => {
         book.description = 'Cuốn sách này cung cấp những kiến thức giá trị và trải nghiệm đọc tuyệt vời. Bạn hãy mượn để khám phá thêm nội dung chi tiết nhé!';
     }
     
+    // Fetch related books based on category
+    const relatedBooks = await bookModel.getRelatedBooks(book.category, book.id);
+    
     res.render('user/book-details', { 
         title: book.title, 
         book,
         isAlreadyBorrowing,
-        hasReachedLimit
+        hasReachedLimit,
+        relatedBooks
     });
   } catch (e) {
       req.flash('error_msg', 'Lỗi tải chi tiết sách: ' + e.message);
@@ -131,14 +135,50 @@ exports.postConfirmSlip = async (req, res) => {
         req.flash('error_msg', 'Vui lòng chọn ngày trả');
         return res.redirect('back');
     }
+
+    const now = new Date();
+    const selectedDate = new Date(returnDate);
+    const diffTime = selectedDate - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    const maxDays = parseInt(process.env.MAX_BORROW_DAYS) || 14;
+
+    if (diffDays > maxDays) {
+        req.flash('error_msg', `Thời gian mượn tối đa là ${maxDays} ngày.`);
+        return res.redirect('back');
+    }
     
-    await bookModel.borrowBook(req.params.id, userId, returnDate);
-    req.flash('success_msg', 'Mượn sách thành công! Phiếu mượn đã được tạo.');
-    res.redirect('/history'); // Redirect to history where the slip will be listed
+    const transactionId = await bookModel.borrowBook(req.params.id, userId, returnDate);
+    req.flash('success_msg', 'Mượn sách thành công!');
+    res.redirect(`/print-slip/${transactionId}?autoPrint=true`);
   } catch (e) {
     req.flash('error_msg', 'Lỗi khi mượn sách: ' + e.message);
     res.redirect('back');
   }
+};
+
+exports.getPrintSlip = async (req, res) => {
+    try {
+        const transId = req.params.id;
+        const transaction = await bookModel.getTransactionById(transId);
+        if (!transaction) {
+            return res.status(404).send('Không tìm thấy phiếu mượn');
+        }
+        
+        // Security: Ensure user owns this transaction (or is admin)
+        if (!req.session.user || (req.session.user.id !== transaction.userId && req.session.user.role !== 'admin')) {
+             return res.status(403).send('Bạn không có quyền xem phiếu này');
+        }
+
+        res.render('user/print-slip', { 
+            title: 'In phiếu mượn', 
+            transaction,
+            layout: false, // Don't use standard header/footer
+            autoPrint: req.query.autoPrint === 'true'
+        });
+    } catch (e) {
+        res.status(500).send('Lỗi: ' + e.message);
+    }
 };
 
 exports.getProfile = async (req, res) => {
@@ -251,7 +291,17 @@ exports.postRenew = async (req, res) => {
     req.flash('success_msg', 'Gia hạn thành công! Ngày trả mới: ' + selectedDate.toLocaleDateString('vi-VN'));
     res.redirect('/borrowing');
   } catch (e) {
-    req.flash('error_msg', 'Lỗi khi gia hạn: ' + e.message);
     res.redirect(`/renew/${req.params.id}`);
+  }
+};
+
+exports.getApiSearch = async (req, res) => {
+  try {
+    const query = req.query.q || '';
+    if (!query) return res.json({ books: [] });
+    const books = await bookModel.searchBooks(query);
+    res.json({ books: books.slice(0, 5) }); // Return top 5 results
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 };
